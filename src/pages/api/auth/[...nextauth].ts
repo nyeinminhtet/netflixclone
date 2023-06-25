@@ -8,6 +8,7 @@ import GoogleProvider from "next-auth/providers/google";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 
 export const authOptions: AuthOptions = {
+  adapter: PrismaAdapter(prismadb),
   providers: [
     process.env.VERCEL_ENV === "preview"
       ? Credentials({
@@ -55,8 +56,15 @@ export const authOptions: AuthOptions = {
   pages: {
     signIn: "/auth",
   },
+  callbacks: {
+    async session({ session, user }) {
+      if (!!session.user) {
+        session.user = user;
+      }
+      return session;
+    },
+  },
   debug: process.env.NODE_ENV === "development",
-  adapter: PrismaAdapter(prismadb),
   session: {
     strategy: "jwt",
   },
